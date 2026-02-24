@@ -252,18 +252,14 @@ projectroot/
 │   │   │   ├── PiecePreview/
 │   │   │   │   ├── PiecePreview.tsx
 │   │   │   │   └── PiecePreview.module.css
-│   │   │   ├── HoldPanel/
-│   │   │   │   ├── HoldPanel.tsx
-│   │   │   │   └── HoldPanel.module.css
-│   │   │   ├── NextPanel/
-│   │   │   │   ├── NextPanel.tsx
-│   │   │   │   └── NextPanel.module.css
-│   │   │   ├── ScorePanel/
-│   │   │   │   ├── ScorePanel.tsx
-│   │   │   │   └── ScorePanel.module.css
 │   │   │   ├── GameOverOverlay/
 │   │   │   │   ├── GameOverOverlay.tsx
 │   │   │   │   └── GameOverOverlay.module.css
+│   │   │   ├── SettingsModal/
+│   │   │   │   ├── SettingsModal.tsx
+│   │   │   │   ├── SettingsModal.module.css
+│   │   │   │   ├── AudioTab.tsx
+│   │   │   │   └── ControlsTab.tsx
 │   │   │   └── index.ts
 │   │   │
 │   │   ├── ui/
@@ -273,11 +269,6 @@ projectroot/
 │   │   │   ├── Modal/
 │   │   │   │   ├── Modal.tsx
 │   │   │   │   └── Modal.module.css
-│   │   │   ├── SettingsModal/
-│   │   │   │   ├── SettingsModal.tsx
-│   │   │   │   ├── SettingsModal.module.css
-│   │   │   │   ├── AudioTab.tsx
-│   │   │   │   └── ControlsTab.tsx
 │   │   │   ├── ErrorBoundary/
 │   │   │   │   └── ErrorBoundary.tsx
 │   │   │   └── index.ts
@@ -286,15 +277,21 @@ projectroot/
 │   │       ├── GameLayout/
 │   │       │   ├── GameLayout.tsx
 │   │       │   ├── GameLayout.module.css
+│   │       │   ├── HoldPanel/
+│   │       │   │   ├── HoldPanel.tsx
+│   │       │   │   └── HoldPanel.module.css
+│   │       │   ├── NextPanel/
+│   │       │   │   ├── NextPanel.tsx
+│   │       │   │   └── NextPanel.module.css
+│   │       │   ├── ScorePanel/
+│   │       │   │   ├── ScorePanel.tsx
+│   │       │   │   └── ScorePanel.module.css
 │   │       │   ├── PauseOverlay/
 │   │       │   │   ├── PauseOverlay.tsx
 │   │       │   │   └── PauseOverlay.module.css
-│   │       │   ├── OpponentBoard/
-│   │       │   │   ├── OpponentBoard.tsx
-│   │       │   │   └── OpponentBoard.module.css
-│   │       │   └── LeaderboardSidebar/
-│   │       │       ├── LeaderboardSidebar.tsx
-│   │       │       └── LeaderboardSidebar.module.css
+│   │       │   └── OpponentBoard/
+│   │       │       ├── OpponentBoard.tsx
+│   │       │       └── OpponentBoard.module.css
 │   │       └── index.ts
 │   │
 │   ├── pages/
@@ -311,8 +308,7 @@ projectroot/
 │   │   │       ├── PlayerList.tsx
 │   │   │       └── PlayerList.module.css
 │   │   ├── GameScreen/
-│   │   │   ├── GameScreen.tsx
-│   │   │   └── GameScreen.module.css
+│   │   │   └── GameScreen.tsx
 │   │   ├── NotFound/
 │   │   │   ├── NotFound.tsx
 │   │   │   └── NotFound.module.css
