@@ -71,30 +71,59 @@ Check every added file against this test: *is this file directly necessitated by
 ---
 
 ## Application Screens & Flow
+
 ```
 Start Screen  [Settings button always visible in top-right corner]
-├── → Singleplayer → Game Screen (singleplayer layout)
+├── → Singleplayer → Game Screen (singleplayer mode)
 └── → Multiplayer
     └── Lobby Screen
-        ├── Host → room code → waiting room → Game Screen (multiplayer layout)
-        └── Join → enter room code → waiting room → Game Screen (multiplayer layout)
+        ├── Host → room code displayed → waiting room → Game Screen (multiplayer mode)
+        └── Join → enter room code → enter name → waiting room → Game Screen (multiplayer mode)
 
-Settings Modal (accessible from Start Screen and paused Game Screen)
+Settings Modal (overlay, not a route — accessible from Start Screen and Pause overlay)
 ├── Audio tab — master volume slider
 └── Controls tab — rebindable keybind list
 ```
 
-**Start Screen** — Singleplayer and Multiplayer buttons. Settings icon in top-right opens the Settings Modal.
+**Start Screen** — Singleplayer and Multiplayer buttons. Settings icon in the top-right opens the Settings Modal.
 
-**Lobby Screen** — Host path displays the room code (up to 10 players). Join path shows a code entry input, followed by a name input. Both paths show a waiting room listing connected players. Only the host can start the game.
+**Lobby Screen** — The Host path displays the generated room code and a waiting room listing connected players; only the host can press Start. The Join path shows a room-code input followed by a name input, then the same waiting room view.
 
-**Game Screen (Singleplayer layout)** — Hold piece panel (left), main board (centre), Next piece preview + Score + Level + Lines cleared (right). Pause overlay on Escape; Settings Modal accessible from within it. Game Over overlay on loss.
+**Game Screen** — A single route rendered by `GameLayout`, which derives its visual mode from the number of players in `RoomContext`. See the Game Layout section below for the two arrangements.
 
-**Game Screen (Multiplayer layout)** — Player's board (centre), up to 9 opponent boards as small read-only snapshots, live leaderboard sidebar. Game Over overlay shows final rankings.
+**Settings Modal** — An overlay accessible from the Start Screen (via the settings icon) and from the Pause overlay (singleplayer only). Two tabs: Audio (master volume slider, 0–100) and Controls (rebindable action list). Both are persisted to `localStorage`.
 
-**Settings Modal** — Overlay (not a route) accessible from the Start Screen and Pause overlay. Two tabs:
-- **Audio** — master volume slider (0–100), persisted to `localStorage`.
-- **Controls** — rebindable action list; defaults from `constants/keybinds.constants.ts`; persisted to `localStorage`.
+---
+
+## Game Layout
+
+`GameLayout` is the single structural shell for the game screen. It reads player count from
+`RoomContext`: a count of one triggers singleplayer mode; two or more triggers multiplayer
+mode. No prop is needed — mode is derived, not passed.
+
+Both modes render the same centred player panel: a compact, self-contained unit consisting
+of the Hold piece stub (left), the main board (centre), and a right column containing the
+Next piece queue, Score, Level, and Lines cleared. This panel is identical in both modes
+and always occupies the visual centre of the screen.
+
+**Singleplayer mode** — The player panel fills the screen. Escape opens a Pause overlay;
+the Settings Modal is accessible from within it.
+
+**Multiplayer mode** — The player panel remains centred. Opponent board thumbnails are
+arranged in the remaining spaced to the left and right of the panel — mirroring the
+Tetris 99 convention. A compact position indicator (e.g. 4 / 8) is appended to the
+right column of the player panel rather than occupying a separate sidebar.
+
+Components private to `GameLayout` and co-located inside its folder:
+
+| Component        | Rendered in            |
+|------------------|------------------------|
+| `PauseOverlay`   | Singleplayer mode only |
+| `OpponentBoard`  | Multiplayer mode only  |
+
+**Game Over overlay** — Used in both modes (singleplayer shows a simple loss screen;
+multiplayer shows final rankings). Because it has two importers it is a shared
+`game/` component.
 
 ---
 
@@ -106,21 +135,21 @@ Settings Modal (accessible from Start Screen and paused Game Screen)
 
 **Movement & Rotation** — left/right shift, soft drop, hard drop, SRS rotation with wall kicks.
 
-**Ghost Piece** — Rendered inside `TetrisBoard`; not a separate component.
+**Ghost piece** — Rendered inside `TetrisBoard`; not a separate component.
 
 **Gravity** — `requestAnimationFrame` loop; fall interval decreases with level.
 
 **Levels** — `Math.floor(linesCleared / 10) + 1`.
 
-**Scoring** — 1 line: 100×level · 2 lines: 300×level · 3 lines: 500×level · 4 lines: 800×level.
+**Scoring** — 1 line: 100 × level · 2 lines: 300 × level · 3 lines: 500 × level · 4 lines: 800 × level.
 
-**7-Bag Randomizer** — All 7 pieces once per cycle. In multiplayer, every client seeds from the value the backend distributes at game start.
+**7-bag randomiser** — All 7 pieces once per cycle. In multiplayer, every client seeds from the value the backend distributes at game start.
 
-**Hold Piece** — Once per turn; locked until the current piece locks down.
+**Hold piece** — Once per turn; locked until the current piece locks down.
 
-**Lock Down** — Locks when a piece can no longer fall; triggers a lock-event payload to the backend.
+**Lock down** — Locks when a piece can no longer fall; triggers a lock-event payload to the backend.
 
-**Game Over** — Triggered when a new piece cannot spawn.
+**Game over** — Triggered when a new piece cannot spawn.
 
 ---
 
@@ -150,7 +179,7 @@ Components are organised into four layers. Place every component at the lowest l
 
 - **`components/ui/`** — generic, domain-agnostic interface elements reusable across any project (buttons, modals, inputs, error boundaries).
 - **`components/game/`** — Tetris-specific rendering components tightly coupled to game state (the board, piece previews, overlays).
-- **`components/layout/`** — structural components that arrange other components within a screen without owning domain logic (singleplayer and multiplayer layout shells).
+- **`components/layout/`** — structural components that arrange other components within a screen without owning domain logic (`GameLayout` is the sole member).
 - **`pages/`** — route-level entry points; one per screen in the application.
 
 ### 2 · Component visibility and co-location
@@ -201,7 +230,7 @@ All values that encode a design decision — colours, spacing, font sizes, timin
 
 ## Your Task
 
-Review the current project structure below and return a fully improved version. You may add, remove, rename, or reorganise files and folders only where doing so is directly justified by a stated requirement or structural principle. Every change must make the structure leaner, clearer, or more correct. Justify every change in the Change Log.
+Review the current project structure below and return a fully improved version. You may add, remove, rename, or reorganise files and folders only where doing so is directly justified by a stated requirement or structural principle. Every change must make the structure leaner, clearer, or more correct — not all three conditions are required, but at least one must be demonstrably true.
 
 **Current project structure to improve:**
 
@@ -217,8 +246,7 @@ projectroot/
 │   │   ├── game/
 │   │   │   ├── TetrisBoard/
 │   │   │   │   ├── TetrisBoard.tsx
-│   │   │   │   └── TetrisBoard.module.css
-│   │   │   ├── BoardCell/
+│   │   │   │   ├── TetrisBoard.module.css
 │   │   │   │   ├── BoardCell.tsx
 │   │   │   │   └── BoardCell.module.css
 │   │   │   ├── PiecePreview/
@@ -233,15 +261,6 @@ projectroot/
 │   │   │   ├── ScorePanel/
 │   │   │   │   ├── ScorePanel.tsx
 │   │   │   │   └── ScorePanel.module.css
-│   │   │   ├── OpponentBoard/
-│   │   │   │   ├── OpponentBoard.tsx
-│   │   │   │   └── OpponentBoard.module.css
-│   │   │   ├── LeaderboardSidebar/
-│   │   │   │   ├── LeaderboardSidebar.tsx
-│   │   │   │   └── LeaderboardSidebar.module.css
-│   │   │   ├── PauseOverlay/
-│   │   │   │   ├── PauseOverlay.tsx
-│   │   │   │   └── PauseOverlay.module.css
 │   │   │   ├── GameOverOverlay/
 │   │   │   │   ├── GameOverOverlay.tsx
 │   │   │   │   └── GameOverOverlay.module.css
@@ -259,23 +278,23 @@ projectroot/
 │   │   │   │   ├── SettingsModal.module.css
 │   │   │   │   ├── AudioTab.tsx
 │   │   │   │   └── ControlsTab.tsx
-│   │   │   ├── RoomCode/
-│   │   │   │   ├── RoomCode.tsx
-│   │   │   │   └── RoomCode.module.css
-│   │   │   ├── PlayerList/
-│   │   │   │   ├── PlayerList.tsx
-│   │   │   │   └── PlayerList.module.css
 │   │   │   ├── ErrorBoundary/
 │   │   │   │   └── ErrorBoundary.tsx
 │   │   │   └── index.ts
 │   │   │
 │   │   └── layout/
-│   │       ├── SingleplayerLayout/
-│   │       │   ├── SingleplayerLayout.tsx
-│   │       │   └── SingleplayerLayout.module.css
-│   │       ├── MultiplayerLayout/
-│   │       │   ├── MultiplayerLayout.tsx
-│   │       │   └── MultiplayerLayout.module.css
+│   │       ├── GameLayout/
+│   │       │   ├── GameLayout.tsx
+│   │       │   ├── GameLayout.module.css
+│   │       │   ├── PauseOverlay/
+│   │       │   │   ├── PauseOverlay.tsx
+│   │       │   │   └── PauseOverlay.module.css
+│   │       │   ├── OpponentBoard/
+│   │       │   │   ├── OpponentBoard.tsx
+│   │       │   │   └── OpponentBoard.module.css
+│   │       │   └── LeaderboardSidebar/
+│   │       │       ├── LeaderboardSidebar.tsx
+│   │       │       └── LeaderboardSidebar.module.css
 │   │       └── index.ts
 │   │
 │   ├── pages/
@@ -284,7 +303,13 @@ projectroot/
 │   │   │   └── StartScreen.module.css
 │   │   ├── LobbyScreen/
 │   │   │   ├── LobbyScreen.tsx
-│   │   │   └── LobbyScreen.module.css
+│   │   │   ├── LobbyScreen.module.css
+│   │   │   ├── RoomCode/
+│   │   │   │   ├── RoomCode.tsx
+│   │   │   │   └── RoomCode.module.css
+│   │   │   └── PlayerList/
+│   │   │       ├── PlayerList.tsx
+│   │   │       └── PlayerList.module.css
 │   │   ├── GameScreen/
 │   │   │   ├── GameScreen.tsx
 │   │   │   └── GameScreen.module.css
