@@ -379,3 +379,48 @@ projectroot/
 ---
 
 Read the attached guide and current file structure in full before making any changes. Follow every Structural Principle exactly — treat them as hard constraints, not suggestions. For every file you add, remove, rename, or move, annotate it in the tree and justify it in the Change Log. Do not add any file that cannot be traced directly to a stated requirement. Do not remove any file unless you can prove it is redundant or violates a principle. Every change must make the structure leaner, clearer, or more correct — not all three conditions are required, but at least one must be demonstrably true.
+
+---
+
+You hit the nail right on the head. That exact structure—specifically the inclusion of BoardCell.tsx—is exactly the "React trap" I was warning you about.
+
+If your TetrisBoard.tsx is rendering a grid of 200 <BoardCell /> components, you are forcing React to run its reconciliation algorithm (checking what changed and updating the DOM) constantly. At high speeds, this will cause your game to stutter.
+
+However, do not throw this folder structure away! Aside from BoardCell.tsx, the rest of this architecture is actually phenomenal. It is incredibly well-organized for a complex game. Here is how you tweak this exact folder structure to use the high-performance Canvas approach:
+
+What to Change in Your Structure
+1. Delete BoardCell.tsx
+You won't need individual components for the grid squares anymore.
+
+2. Modify TetrisBoard.tsx
+Instead of mapping through an array of divs, this file becomes a "wrapper" for your canvas. It will look incredibly simple, something like this:
+
+TypeScript
+
+// Inside TetrisBoard.tsx
+export const TetrisBoard = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  // You pass the canvasRef to your game loop hook so it can draw on it
+  useGameLoop(canvasRef); 
+
+  return <canvas ref={canvasRef} width={300} height={600} className={styles.board} />;
+};
+3. Add a draw.utils.ts (Optional but recommended)
+Under your utils/ folder, add a file specifically for Canvas drawing instructions (e.g., drawRect, clearBoard, drawGrid). This keeps your React components clean.
+
+Why the Rest of Your Structure is Perfect
+Even though the rendering changes to Canvas, all the logic still needs a home, and you nailed the placement:
+
+hooks/useGameLoop.ts: This is brilliant. Instead of setInterval, this hook will use requestAnimationFrame to trigger the game loop at 60 FPS.
+
+utils/collision.utils.ts: The math of a piece hitting the bottom or a wall is exactly the same whether you use <div> or <canvas>. It belongs in a utility function.
+
+hooks/useInput.ts: Keeping key listeners out of the main component is best practice, especially when dealing with key-repeat (like holding down the "Down" arrow).
+
+context/GameContext.tsx: Even though the Board uses Canvas, you still need a React Context so the NextPanel.tsx and ScorePanel.tsx know what the score is and what the next piece is. They can stay as standard React components!
+
+The Bottom Line
+If you want to build a quick, simple Tetris game just for fun or a portfolio piece, you can build it with BoardCell.tsx components. People do it all the time. But if you want to build a high-speed, multiplayer Tetris where your C# server is sending garbage lines to opponents in real-time, you must use the Canvas element for the board.
+
+Would you like me to rewrite your useGameLoop.ts and TetrisBoard.tsx into a working Canvas example so you can see how they talk to each other?
